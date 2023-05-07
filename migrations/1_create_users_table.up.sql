@@ -29,26 +29,26 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 /* first name index */
-CREATE INDEX idx_users_first_name ON users (first_name);
+CREATE INDEX IF NOT EXISTS idx_users_first_name ON users (first_name);
 
-CREATE INDEX trgm_idx_users_first_name ON users USING gin (first_name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS trgm_idx_users_first_name ON users USING gin (first_name gin_trgm_ops);
 
 /* last name index */
-CREATE INDEX idx_users_last_name ON users (last_name);
+CREATE INDEX IF NOT EXISTS idx_users_last_name ON users (last_name);
 
-CREATE INDEX trgm_idx_users_last_name ON users USING gin (last_name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS trgm_idx_users_last_name ON users USING gin (last_name gin_trgm_ops);
 
 /* nickname index */
-CREATE UNIQUE INDEX idx_users_nickname ON users (nickname);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_nickname ON users (nickname);
 
-CREATE INDEX trgm_idx_users_nickname ON users USING gin (nickname gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS trgm_idx_users_nickname ON users USING gin (nickname gin_trgm_ops);
 
 /* email index */
-CREATE UNIQUE INDEX email_idx ON users (email);
+CREATE UNIQUE INDEX IF NOT EXISTS email_idx ON users (email);
 
-CREATE INDEX trgm_idx_users_email ON users USING gin (email gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS trgm_idx_users_email ON users USING gin (email gin_trgm_ops);
 
 /* country index */
-CREATE INDEX idx_users_country ON users (country);
+CREATE INDEX IF NOT EXISTS idx_users_country ON users (country);
 
-CREATE INDEX trgm_idx_users_country ON users USING gin (country gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS trgm_idx_users_country ON users USING gin (country gin_trgm_ops);

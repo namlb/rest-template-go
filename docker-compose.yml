@@ -1,20 +1,25 @@
 version: "3.9"
+volumes:
+  postgres-data:
 services:
-  app:
-    build: .
+  rest-go:
+    image: "rest-go"
+    environment:
+      - POSTGRES_DSN=postgresql://guest:guest@postgres:5432/speakeasy?sslmode=disable
+      - SPEAKEASY_ENVIRONMENT=docker
     ports:
       - "8080:8080"
-    environment:
-      - POSTGRES_DSN=postgresql://guest:guest@postgres:5432/speakeasy?sslmode=disable # Test credentials
-      - SPEAKEASY_ENVIRONMENT=docker
     depends_on:
       - postgres
   postgres:
-    image: postgres:alpine
-    restart: always
-    environment:
-      POSTGRES_USER: guest
-      POSTGRES_PASSWORD: guest
-      POSTGRES_DB: speakeasy
+    image: "postgres:alpine"
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: "guest"
+      POSTGRES_USER: "guest"
+      POSTGRES_DB: "speakeasy"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - "postgres-data:/var/lib/postgresql/data/pgdata"
+      - ${PROJECTDIR}/migrations/:/docker-entrypoint-initdb.d/

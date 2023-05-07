@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rest-go-deployment
+  labels:
+    app: rest-go
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rest-go
+  template:
+    metadata:
+      labels:
+        app: rest-go
+    spec:
+      containers:
+        - name: rest-go
+          image: rest-go
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+        - name: postgres
+          image: postgres:alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: guest
+            - name: POSTGRES_USER
+              value: guest
+            - name: POSTGRES_DB
+              value: speakeasy
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data/pgdata
+              name: postgres-data
+      volumes:
+        - name: postgres-data

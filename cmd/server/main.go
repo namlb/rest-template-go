@@ -37,12 +37,14 @@ func appStart(ctx context.Context, a *app.App) ([]app.Listener, error) {
 	if err := db.MigratePostgres(ctx, "file://migrations"); err != nil {
 		return nil, err
 	}
-	a.OnShutdown(func() {
-		// Temp for development so database is cleared on shutdown
-		if err := db.RevertMigrations(ctx, "file://migrations"); err != nil {
-			logging.From(ctx).Error("failed to revert migrations", zap.Error(err))
-		}
-	})
+	a.OnShutdown(
+		func() {
+			// Temp for development so database is cleared on shutdown
+			if err := db.RevertMigrations(ctx, "file://migrations"); err != nil {
+				logging.From(ctx).Error("failed to revert migrations", zap.Error(err))
+			}
+		},
+	)
 
 	// Instantiate and connect all our classes
 	us := store.New(db.GetDB())
@@ -66,20 +68,24 @@ func appStart(ctx context.Context, a *app.App) ([]app.Listener, error) {
 func initDatabase(ctx context.Context, cfg *config.Config, a *app.App) (*psql.Driver, error) {
 	db := psql.New(cfg.PSQL)
 
-	err := backoff.Retry(func() error {
-		return db.Connect(ctx)
-	}, backoff.NewExponentialBackOff())
+	err := backoff.Retry(
+		func() error {
+			return db.Connect(ctx)
+		}, backoff.NewExponentialBackOff(),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	a.OnShutdown(func() {
-		// Shutdown connection when server terminated
-		logging.From(ctx).Info("shutting down db connection")
-		if err := db.Close(ctx); err != nil {
-			logging.From(ctx).Error("failed to close db connection", zap.Error(err))
-		}
-	})
+	a.OnShutdown(
+		func() {
+			// Shutdown connection when server terminated
+			logging.From(ctx).Info("shutting down db connection")
+			if err := db.Close(ctx); err != nil {
+				logging.From(ctx).Error("failed to close db connection", zap.Error(err))
+			}
+		},
+	)
 
 	return db, nil
 }
