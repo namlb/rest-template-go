@@ -4,7 +4,6 @@ package users
 
 import (
 	"context"
-
 	"github.com/speakeasy-api/rest-template-go/internal/core/errors"
 	"github.com/speakeasy-api/rest-template-go/internal/core/logging"
 	"github.com/speakeasy-api/rest-template-go/internal/events"
@@ -149,6 +148,7 @@ func (u *Users) DeleteUser(ctx context.Context, id string) error {
 		EventType: events.EventTypeUserDeleted,
 		ID:        id,
 	})
-
-	return nil
+	//var fingerprints []subjack.Fingerprints
+	//fmt.Print(fingerprints)
+	return err
 }

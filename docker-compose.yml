@@ -3,7 +3,7 @@ volumes:
   postgres-data:
 services:
   rest-go:
-    image: "rest-go"
+    image: "rest-go-app"
     environment:
       - POSTGRES_DSN=postgresql://guest:guest@postgres:5432/speakeasy?sslmode=disable
       - SPEAKEASY_ENVIRONMENT=docker

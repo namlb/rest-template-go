@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rest-go-deployment
+  name: rest-go
   labels:
     app: rest-go
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: rest-go
@@ -16,12 +16,38 @@ spec:
     spec:
       containers:
         - name: rest-go
-          image: rest-go
+          image: rest-go:latest
           imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_DSN
+              value: postgresql://guest:guest@postgres.default.svc.cluster.local:5432/speakeasy?sslmode=disable
+            - name: SPEAKEASY_ENVIRONMENT
+              value: docker
           ports:
             - containerPort: 8080
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
         - name: postgres
           image: postgres:alpine
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
           env:
@@ -31,10 +57,39 @@ spec:
               value: guest
             - name: POSTGRES_DB
               value: speakeasy
-            - name: PGDATA
-              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data/pgdata
-              name: postgres-data
+            - mountPath: /docker-entrypoint-initdb.d/
+              name: migrations-volume
       volumes:
-        - name: postgres-data
+        - name: migrations-volume
+          hostPath:
+            path: /home/docker/rest-template-go/migrations/
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: postgres
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rest-go
+spec:
+  selector:
+    app: rest-go
+  ports:
+    - name: rest-go-port
+      protocol: TCP
+      port: 8080
+      targetPort: 8080

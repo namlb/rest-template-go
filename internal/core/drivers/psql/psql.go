@@ -2,10 +2,11 @@ package psql
 
 import (
 	"context"
-
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // imports the postgres driver
 	"github.com/speakeasy-api/rest-template-go/internal/core/errors"
+	"github.com/speakeasy-api/rest-template-go/internal/core/logging"
+	"go.uber.org/zap"
 )
 
 const (
@@ -35,13 +36,14 @@ func New(cfg Config) *Driver {
 
 // Connect connects to the database.
 func (d *Driver) Connect(ctx context.Context) error {
+	logging.From(ctx).Info("start to connect database: " + d.cfg.DSN)
 	db, err := sqlx.Connect("postgres", d.cfg.DSN)
 	if err != nil {
+		logging.From(ctx).Error("failed to connect database", zap.Error(err))
 		return ErrConnect.Wrap(err)
 	}
-
+	logging.From(ctx).Info("connect database successfully", zap.Error(err))
 	d.db = db
-
 	return nil
 }
 

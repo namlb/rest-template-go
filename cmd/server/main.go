@@ -34,17 +34,17 @@ func appStart(ctx context.Context, a *app.App) ([]app.Listener, error) {
 	}
 
 	// Run our migrations which will update the DB or create it if it doesn't exist
-	if err := db.MigratePostgres(ctx, "file://migrations"); err != nil {
-		return nil, err
-	}
-	a.OnShutdown(
-		func() {
-			// Temp for development so database is cleared on shutdown
-			if err := db.RevertMigrations(ctx, "file://migrations"); err != nil {
-				logging.From(ctx).Error("failed to revert migrations", zap.Error(err))
-			}
-		},
-	)
+	//if err := db.MigratePostgres(ctx, "file://migrations"); err != nil {
+	//	return nil, err
+	//}
+	//a.OnShutdown(
+	//	func() {
+	//		// Temp for development so database is cleared on shutdown
+	//		if err := db.RevertMigrations(ctx, "file://migrations"); err != nil {
+	//			logging.From(ctx).Error("failed to revert migrations", zap.Error(err))
+	//		}
+	//	},
+	//)
 
 	// Instantiate and connect all our classes
 	us := store.New(db.GetDB())
